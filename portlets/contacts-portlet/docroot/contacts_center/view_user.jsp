@@ -271,6 +271,55 @@ request.setAttribute("view_user.jsp-user", user2);
 							</c:if>
 
 							<c:if test="<%= showTags %>">
+                                <div class="user-categories-title">
+                                    <liferay-ui:message key="categories" />
+                                </div>
+
+                                <%
+                                    List<AssetCategory> assetCategories = AssetCategoryLocalServiceUtil.getCategories(User.class.getName(), user2.getUserId());
+                                %>
+
+                                <c:choose>
+                                    <c:when test="<%= !assetCategories.isEmpty() %>">
+                                        <div class="field-group" data-sectionId="categorization" data-title="<%= LanguageUtil.get(pageContext, "categories") %>" style="float: none !important;">
+                                            <i class="icon-edit"></i>
+
+                                            <ul class="user-categories">
+
+                                                <%
+                                                    StringBuilder sb = new StringBuilder();
+
+                                                    for (AssetCategory assetCategory : assetCategories) {
+                                                        PortletURL searchURL = ((LiferayPortletResponse)renderResponse).createRenderURL("3");
+
+                                                        searchURL.setWindowState(WindowState.MAXIMIZED);
+
+                                                        searchURL.setParameter("groupId", "0");
+                                                        searchURL.setParameter("keywords", assetCategory.getName());
+                                                        searchURL.setParameter("struts_action", "/search/search");
+
+                                                        sb.append("<li><a href=\"");
+                                                        sb.append(searchURL);
+                                                        sb.append("\">");
+                                                        sb.append(assetCategory.getName());
+                                                        sb.append("</a></li>");
+                                                    }
+                                                %>
+
+                                                <%= sb.toString() %>
+                                            </ul>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+
+                                        <%
+                                            Group group = themeDisplay.getScopeGroup();
+                                        %>
+
+                                        <liferay-ui:message arguments="<%= HtmlUtil.escape(PortalUtil.getUserName(user2.getUserId(), group.getDescriptiveName(locale))) %>" key="x-does-not-have-any-categories" translateArguments="<%= false %>" />
+                                    </c:otherwise>
+                                </c:choose>
+
 								<div class="user-tags-title">
 									<liferay-ui:message key="tags" />
 								</div>
